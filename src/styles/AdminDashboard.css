@@ -96,6 +96,39 @@
   box-shadow: 0 14px 30px rgba(110, 142, 251, 0.45);
 }
 
+/* Map tabs */
+.map-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1.25rem;
+}
+
+.map-tab {
+  padding: 0.45rem 0.85rem;
+  border-radius: 10px;
+  border: 1px solid var(--border-glow);
+  background: rgba(15, 15, 26, 0.6);
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: var(--transition);
+  white-space: nowrap;
+}
+
+.map-tab:hover {
+  border-color: var(--accent-1);
+  color: var(--text-primary);
+}
+
+.map-tab--active {
+  background: linear-gradient(90deg, var(--accent-1), var(--accent-2));
+  border-color: transparent;
+  color: #fff;
+  box-shadow: 0 6px 18px rgba(110, 142, 251, 0.35);
+}
+
 /* Table wrapper */
 .table-wrapper {
   overflow-x: auto;

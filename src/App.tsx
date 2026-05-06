@@ -5,9 +5,11 @@ import TeamsPage from './pages/TeamsPage';
 import SubmissionPage from './pages/SubmissionPage';
 import AdminDashboardPage from './pages/AdminDashboardPage';
 import EditOldScoresPage from './pages/EditOldScoresPage';
+import ErrorBoundary from './components/ErrorBoundary';
 
 function App() {
   return (
+    <ErrorBoundary>
     <Router>
       <Routes>
         <Route path="/" element={<TourneysPage />} />
@@ -37,6 +39,7 @@ function App() {
 
       </Routes>
     </Router>
+    </ErrorBoundary>
   );
 }
 

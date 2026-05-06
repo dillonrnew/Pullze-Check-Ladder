@@ -83,12 +83,23 @@ const emptyEditableValues: EditableSubmissionValues = {
   placement: '',
 };
 
+function buildMapTabs(submissions: Submission[]): string[] {
+  const mapsWithSubmissions = [...new Set(submissions.map((s) => s.map_number))];
+  const lastMap = mapsWithSubmissions.length > 0 ? Math.max(...mapsWithSubmissions) : 0;
+  const tabMapNumbers = new Set(mapsWithSubmissions);
+  if (lastMap > 0) tabMapNumbers.add(lastMap);
+  if (lastMap > 0) tabMapNumbers.add(lastMap + 1);
+  const sorted = [...tabMapNumbers].sort((a, b) => a - b);
+  return ['All Maps', ...sorted.map((n) => `Map ${n}`)];
+}
+
 const AdminDashboard: React.FC = () => {
   const navigate = useNavigate();
   const [submissions, setSubmissions] = useState<Submission[]>([]);
   const [editableValues, setEditableValues] = useState<Record<string, EditableSubmissionValues>>({});
   const [loading, setLoading] = useState(true);
   const [savingSubmissionId, setSavingSubmissionId] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<string>('All Maps');
 
   const fetchSubmissions = async () => {
     const query = supabase
@@ -113,7 +124,7 @@ const AdminDashboard: React.FC = () => {
       `
       )
       .eq('status', 'pending')
-      .order('id', { ascending: false })
+      .order('created_at', { ascending: true })
       .returns<SubmissionRow[]>();
 
     const { data, error } = await query;
@@ -248,6 +259,16 @@ const AdminDashboard: React.FC = () => {
 
   if (loading) return <p className="loading-text">Loading submissions...</p>;
 
+  const countForTab = (tab: string) =>
+    tab === 'All Maps'
+      ? submissions.length
+      : submissions.filter((s) => s.map_number === parseInt(tab.replace('Map ', ''), 10)).length;
+
+  const visibleSubmissions =
+    activeTab === 'All Maps'
+      ? submissions
+      : submissions.filter((s) => s.map_number === parseInt(activeTab.replace('Map ', ''), 10));
+
   return (
     <div className="dashboard-container">
       <div className="dashboard-content">
@@ -266,6 +287,18 @@ const AdminDashboard: React.FC = () => {
               Refresh
             </button>
           </div>
+        </div>
+
+        <div className="map-tabs">
+          {buildMapTabs(submissions).map((tab) => (
+            <button
+              key={tab}
+              className={`map-tab${activeTab === tab ? ' map-tab--active' : ''}`}
+              onClick={() => setActiveTab(tab)}
+            >
+              {tab} ({countForTab(tab)})
+            </button>
+          ))}
         </div>
 
         <div className="table-wrapper">
@@ -289,7 +322,7 @@ const AdminDashboard: React.FC = () => {
             </thead>
 
             <tbody>
-              {submissions.map((s) => (
+              {visibleSubmissions.map((s) => (
                 <tr key={s.id} className="table-row">
                   <td className="table-cell cell-center">
                     <input
@@ -384,7 +417,7 @@ const AdminDashboard: React.FC = () => {
                 </tr>
               ))}
 
-              {submissions.length === 0 && (
+              {visibleSubmissions.length === 0 && (
                 <tr>
                   <td className="table-cell cell-center" colSpan={5}>
                     No pending submissions
